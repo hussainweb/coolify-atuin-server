@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  atuin:
+    container_name: atuin
+    image: ghcr.io/atuinsh/atuin:v18.11.0
+    command: server start
+    restart: unless-stopped
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./config:/config
+    environment:
+      ATUIN_DB_URI: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      ATUIN_CONFIG_DIR: /config
+      RUST_LOG: info,atuin_server=debug
