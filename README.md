@@ -73,19 +73,45 @@ Once you have registered your user account, it is recommended to disable open re
 1. Click **Deploy**.
 2. Once the service is running, it will be available on port `8888` (or the domain you've assigned in Coolify).
 
+## Local Development
+
+This project uses [mise](https://mise.jdx.dev/) and Docker Compose for local development.
+
+### Start the Server
+```bash
+mise run start
+```
+This will start the Atuin server on `localhost:8888` and a PostgreSQL 18 database.
+
+### Verify the Server
+Atuin is an API server and does not have a web UI. Verify it is running with:
+```bash
+curl http://localhost:8888/
+```
+You should see a JSON response containing the Atuin version and a quote.
+
+### Stop the Server
+```bash
+mise run stop
+```
+
+## Continuous Integration
+This repository includes a GitHub Actions workflow that automatically tests the Docker Compose setup on every pull request and push to the `main` branch.
+
 ## Self-Contained Setup (All-in-One)
 
-If you prefer to have the database managed within the same Docker Compose stack, you can use the following configuration in Coolify:
+If you prefer to have the database managed within the same Docker Compose stack in Coolify, you can use the following configuration:
 
 ```yaml
 services:
   atuin:
-    image: ghcr.io/atuinsh/atuin:v18.12.0
+    image: ghcr.io/atuinsh/atuin:v18.13.3
     command: start
     restart: unless-stopped
     depends_on:
       - postgres
     environment:
+      ATUIN_HOST: "0.0.0.0"
       ATUIN_DB_URI: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       ATUIN_CONFIG_DIR: /config
     volumes:
@@ -94,20 +120,20 @@ services:
       - "8888:8888"
 
   postgres:
-    image: postgres:16-alpine
+    image: postgres:18-alpine
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql
 
 volumes:
   postgres-data:
 ```
 
-With this setup, you only need to define `POSTGRES_USER`, `POSTGRES_PASSWORD`, and `POSTGRES_DB` in Coolify.
+> **Note for Postgres 18:** The volume mount point has changed to `/var/lib/postgresql` (removing the `/data` suffix) to support the new version-specific directory structure.
 
 ---
 
@@ -137,4 +163,5 @@ To use your new Atuin server on your local machine:
   - Ensure the PostgreSQL database is reachable from the Atuin container.
   - If they are in the same Coolify project, you can usually use the service name as the host.
   - If they are in **different projects**, remember to select **Connect to predefined network** in the **Advanced** tab of the Atuin service settings.
-- **Logs:** Check the **Logs** tab in Coolify for any startup errors.
+- **Empty Reply from Server:** Ensure `ATUIN_HOST` is set to `0.0.0.0`.
+- **Logs:** Check the **Logs** tab in Coolify or run `mise run logs` locally.
