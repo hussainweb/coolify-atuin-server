@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
       POSTGRES_DB: ${POSTGRES_DB:-atuin}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-atuin} -d $${POSTGRES_DB:-atuin}"]
       interval: 5s
@@ -15,14 +15,25 @@ services:
       retries: 5
 
   atuin:
+    image: ghcr.io/atuinsh/atuin:v18.13.3
+    command: start
+    restart: unless-stopped
+    ports:
+      - "8888:8888"
     depends_on:
       db:
         condition: service_healthy
+    volumes:
+      - ./config:/config
     environment:
       POSTGRES_HOST: db
       POSTGRES_USER: ${POSTGRES_USER:-atuin}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
       POSTGRES_DB: ${POSTGRES_DB:-atuin}
+      ATUIN_HOST: "0.0.0.0"
+      ATUIN_DB_URI: postgres://${POSTGRES_USER:-atuin}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-atuin}
+      ATUIN_CONFIG_DIR: /config
+      RUST_LOG: info,atuin_server=debug
 
 volumes:
   postgres_data:
