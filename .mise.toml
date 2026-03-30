@@ -1,0 +1,17 @@
+[env]
+POSTGRES_USER = "atuin"
+POSTGRES_PASSWORD = "password"
+POSTGRES_DB = "atuin"
+POSTGRES_HOST = "db"
+
+[tasks.start]
+description = "Start atuin server with postgres"
+run = "docker compose -f docker-compose.yaml -f docker-compose.test.yaml up -d"
+
+[tasks.stop]
+description = "Stop atuin server"
+run = "docker compose -f docker-compose.yaml -f docker-compose.test.yaml down"
+
+[tasks.logs]
+description = "View atuin server logs"
+run = "docker compose -f docker-compose.yaml -f docker-compose.test.yaml logs -f"
