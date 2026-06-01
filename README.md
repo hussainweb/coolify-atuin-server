@@ -105,7 +105,7 @@ If you prefer to have the database managed within the same Docker Compose stack 
 ```yaml
 services:
   atuin:
-    image: ghcr.io/atuinsh/atuin:v18.13.3
+    image: ghcr.io/atuinsh/atuin:v18.16.1
     command: start
     restart: unless-stopped
     depends_on:
