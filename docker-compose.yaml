@@ -1,6 +1,6 @@
 services:
   atuin:
-    image: ghcr.io/atuinsh/atuin:18.17.0
+    image: ghcr.io/atuinsh/atuin:18.17.1
     command: start
     restart: unless-stopped
     ports:
